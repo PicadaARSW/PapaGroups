@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
+/**
+ * Group model class
+ */
 @Document(collection = "groups")
 public class Group {
     @Id
