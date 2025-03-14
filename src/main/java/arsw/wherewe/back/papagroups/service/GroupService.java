@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Group service class for group operations
+ */
 @Service
 public class GroupService {
 
