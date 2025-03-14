@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * Group controller class for group operations
+ */
 @RestController
 @RequestMapping("/api/v1/groups")
 public class GroupController {
