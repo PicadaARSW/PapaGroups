@@ -6,22 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class GroupControllerTests {
+class GroupControllerTests {
 
     private MockMvc mockMvc;
 
@@ -80,10 +77,33 @@ public class GroupControllerTests {
         verify(groupService, times(1)).getGroupById("groupId");
     }
 
+    @Test
+    void getGroupsByUserIdSuccessfully() throws Exception {
+        Group group1 = new Group();
+        group1.setMembers(List.of("user1", "user2"));
+        Group group2 = new Group();
+        group2.setMembers(List.of("user1"));
 
+        when(groupService.getGroupsByUserId("user1")).thenReturn(List.of(group1, group2));
 
+        mockMvc.perform(get("/api/v1/groups/user/user1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].members").isArray())
+                .andExpect(jsonPath("$[1].members").isArray());
 
+        verify(groupService, times(1)).getGroupsByUserId("user1");
+    }
 
+    @Test
+    void getGroupsByUserIdNoGroupsFound() throws Exception {
+        when(groupService.getGroupsByUserId("user1")).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/v1/groups/user/user1"))
+                .andExpect(status().isNoContent());
+
+        verify(groupService, times(1)).getGroupsByUserId("user1");
+    }
 
 
 

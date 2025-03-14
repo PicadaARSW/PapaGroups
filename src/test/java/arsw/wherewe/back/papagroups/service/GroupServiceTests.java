@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class GroupServiceTests {
+class GroupServiceTests {
 
     @Mock
     private GroupRepository groupRepository;
@@ -107,5 +107,39 @@ public class GroupServiceTests {
 
         assertEquals("El grupo no existe", exception.getMessage());
         verify(groupRepository, never()).save(any(Group.class));
+    }
+
+    @Test
+    void getGroupsByUserIdSuccessfully() {
+        Group group1 = new Group();
+        group1.setMembers(List.of("user1", "user2"));
+        Group group2 = new Group();
+        group2.setMembers(List.of("user1"));
+        Group group3 = new Group();
+        group3.setMembers(List.of("user3"));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group1, group2, group3));
+
+        List<Group> result = groupService.getGroupsByUserId("user1");
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(group1));
+        assertTrue(result.contains(group2));
+        verify(groupRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getGroupsByUserIdNoGroupsFound() {
+        Group group1 = new Group();
+        group1.setMembers(List.of("user2"));
+        Group group2 = new Group();
+        group2.setMembers(List.of("user3"));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group1, group2));
+
+        List<Group> result = groupService.getGroupsByUserId("user1");
+
+        assertTrue(result.isEmpty());
+        verify(groupRepository, times(1)).findAll();
     }
 }

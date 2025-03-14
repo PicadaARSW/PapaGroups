@@ -12,9 +12,10 @@ import java.util.UUID;
 @Service
 public class GroupService {
 
-    @Autowired
+
     private GroupRepository groupRepository;
 
+    @Autowired
     public GroupService(GroupRepository groupRepository) {
         this.groupRepository = groupRepository;
     }
@@ -56,5 +57,14 @@ public class GroupService {
     }
 
 
+    /**
+     * Get all groups by userId
+     * @param userId String user id
+     */
+    public List<Group> getGroupsByUserId(String userId) {
+        return groupRepository.findAll().stream()
+                .filter(g -> g.getMembers().contains(userId))
+                .toList();
+    }
 
 }
