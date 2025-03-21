@@ -64,6 +64,33 @@
 					<target>21</target>
 				</configuration>
 			</plugin>
+			<!-- Generar el JAR con la clase principal -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>arsw.wherewe.back.papagroups.PapagroupsApplication</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<!-- Empaquetar todas las dependencias en un solo JAR ejecutable -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.4.3</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 
 			<!-- Plugin de SonarCloud -->
 			<plugin>
