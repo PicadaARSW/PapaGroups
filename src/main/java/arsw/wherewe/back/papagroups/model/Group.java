@@ -12,6 +12,7 @@ public class Group {
     @Id
     private String id;
     private String admin;
+    private String nameGroup;
     private List<String> members;
     private String code;
 
@@ -49,9 +50,18 @@ public class Group {
         this.code = code;
     }
 
-    public Group(String id, String admin, List<String> members, String code) {
+    public String getNameGroup() {
+        return nameGroup;
+    }
+
+    public void setNameGroup(String nameGroup) {
+        this.nameGroup = nameGroup;
+    }
+
+    public Group(String id, String admin,String nameGroup, List<String> members, String code) {
         this.id = id;
         this.admin = admin;
+        this.nameGroup = nameGroup;
         this.members = members;
         this.code = code;
     }
