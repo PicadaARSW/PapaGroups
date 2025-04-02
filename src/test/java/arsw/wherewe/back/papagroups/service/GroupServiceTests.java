@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,5 +142,21 @@ class GroupServiceTests {
 
         assertTrue(result.isEmpty());
         verify(groupRepository, times(1)).findAll();
+    }
+
+    @Test
+    void joinGroupSuccessfully() {
+        Group group = new Group();
+        group.setCode("code123");
+        group.setMembers(new ArrayList<>());
+
+        when(groupRepository.findAll()).thenReturn(List.of(group));
+        when(groupRepository.save(any(Group.class))).thenReturn(group);
+
+        Group result = groupService.joinGroup("code123", "user1");
+
+        assertNotNull(result);
+        assertTrue(result.getMembers().contains("user1"));
+        verify(groupRepository, times(1)).save(group);
     }
 }
