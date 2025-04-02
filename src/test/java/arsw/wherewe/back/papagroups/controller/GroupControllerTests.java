@@ -105,6 +105,29 @@ class GroupControllerTests {
         verify(groupService, times(1)).getGroupsByUserId("user1");
     }
 
+    @Test
+    void joinGroupSuccessfully() throws Exception {
+        Group group = new Group();
+        group.setId("groupId");
+
+        when(groupService.joinGroup("groupCode", "userId")).thenReturn(group);
+
+        mockMvc.perform(post("/api/v1/groups/join/groupCode/userId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("groupId"));
+
+        verify(groupService, times(1)).joinGroup("groupCode", "userId");
+    }
+
+    @Test
+    void joinGroupUserAlreadyInGroupOrGroupNotFound() throws Exception {
+        when(groupService.joinGroup("groupCode", "userId")).thenReturn(null);
+
+        mockMvc.perform(post("/api/v1/groups/join/groupCode/userId"))
+                .andExpect(status().isBadRequest());
+
+        verify(groupService, times(1)).joinGroup("groupCode", "userId");
+    }
 
 
 }
