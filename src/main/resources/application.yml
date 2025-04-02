@@ -5,4 +5,10 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://WhereWe:fnQ2kZUYqOY2tsK7@wherewe-groups.0liqn.mongodb.net/WhereWe-groups?retryWrites=true&w=majority&appName=WhereWe-groups
+      uri: ${MONGODB_URI}
+
+springdoc:
+  swagger-ui:
+    path: /api-groups.html
+  api-docs:
+    path: /api-groups

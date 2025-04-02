@@ -1,5 +1,6 @@
 package arsw.wherewe.back.papagroups.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
@@ -8,12 +9,18 @@ import java.util.List;
  * Group model class
  */
 @Document(collection = "groups")
+@Schema(description = "Group entity representing a group in the system")
 public class Group {
     @Id
+    @Schema(description = "Unique identifier of the group", example = "507f1f77bcf86cd799439011")
     private String id;
+    @Schema(description = "ID of the group admin", example = "admin123")
     private String admin;
+    @Schema(description = "Name of the group", example = "Study Group")
     private String nameGroup;
+    @Schema(description = "List of member IDs in the group", example = "[\"user1\", \"user2\"]")
     private List<String> members;
+    @Schema(description = "Unique code to join the group", example = "ABC123")
     private String code;
 
     // Getters y setters
