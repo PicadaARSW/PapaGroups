@@ -1,5 +1,6 @@
 package arsw.wherewe.back.papagroups.controller;
 
+import arsw.wherewe.back.papagroups.dto.GroupDTO;
 import arsw.wherewe.back.papagroups.model.Group;
 import arsw.wherewe.back.papagroups.service.GroupService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,9 +38,9 @@ public class GroupController {
             @ApiResponse(responseCode = "400", description = "Invalid group data provided")
     })
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
-        Group newGroup = groupService.createGroup(group);
-        if(newGroup == null){
+    public ResponseEntity<GroupDTO> createGroup(@RequestBody GroupDTO groupDTO) {
+        GroupDTO newGroup = groupService.createGroup(groupDTO);
+        if (newGroup == null) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(newGroup);
@@ -52,9 +53,9 @@ public class GroupController {
                     content = @Content(schema = @Schema(implementation = Group.class))),
             @ApiResponse(responseCode = "204", description = "No groups found")
     })
-    public ResponseEntity<List<Group>> getGroups() {
-        List<Group> groups = groupService.getGroups();
-        if(!groups.isEmpty()) {
+    public ResponseEntity<List<GroupDTO>> getGroups() {
+        List<GroupDTO> groups = groupService.getGroups();
+        if (!groups.isEmpty()) {
             return ResponseEntity.ok(groups);
         } else {
             return ResponseEntity.noContent().build();
@@ -68,9 +69,9 @@ public class GroupController {
                     content = @Content(schema = @Schema(implementation = Group.class))),
             @ApiResponse(responseCode = "404", description = "Group not found")
     })
-    public ResponseEntity<Group> getGroupById(@PathVariable("id") String id) {
-        Group group = groupService.getGroupById(id);
-        if(group != null) {
+    public ResponseEntity<GroupDTO> getGroupById(@PathVariable("id") String id) {
+        GroupDTO group = groupService.getGroupById(id);
+        if (group != null) {
             return ResponseEntity.ok(group);
         } else {
             return ResponseEntity.noContent().build();
@@ -84,12 +85,17 @@ public class GroupController {
                     content = @Content(schema = @Schema(implementation = Group.class))),
             @ApiResponse(responseCode = "400", description = "User already in group or group not found")
     })
-    public ResponseEntity<Group> joinGroup(@PathVariable("code") String code, @PathVariable("userId") String userId){
-        Group group = groupService.joinGroup(code, userId);
-        if(group != null) {
-            return ResponseEntity.ok(group);
-        } else {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<GroupDTO> joinGroup(@PathVariable("code") String code, @PathVariable("userId") String userId) {
+        try {
+            GroupDTO group = groupService.joinGroup(code, userId);
+            if (group != null) {
+                return ResponseEntity.ok(group);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (IllegalArgumentException e) {
+            // include an error message
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
@@ -100,9 +106,9 @@ public class GroupController {
                     content = @Content(schema = @Schema(implementation = Group.class))),
             @ApiResponse(responseCode = "204", description = "No groups found for the user")
     })
-    public ResponseEntity<List<Group>> getGroupsByUserId(@PathVariable("userId") String userId){
-        List<Group> groups = groupService.getGroupsByUserId(userId);
-        if(!groups.isEmpty()) {
+    public ResponseEntity<List<GroupDTO>> getGroupsByUserId(@PathVariable("userId") String userId) {
+        List<GroupDTO> groups = groupService.getGroupsByUserId(userId);
+        if (!groups.isEmpty()) {
             return ResponseEntity.ok(groups);
         } else {
             return ResponseEntity.noContent().build();
