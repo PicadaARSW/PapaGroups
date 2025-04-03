@@ -1,30 +1,40 @@
-package arsw.wherewe.back.papagroups.model;
+package arsw.wherewe.back.papagroups.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 
-/**
- * Group model class
- */
-@Document(collection = "groups")
-@Schema(description = "Group entity representing a group in the system")
-public class Group {
-    @Id
+@Schema(description = "DTO representing a group in the system")
+public class GroupDTO {
+
     @Schema(description = "Unique identifier of the group", example = "507f1f77bcf86cd799439011")
     private String id;
+
     @Schema(description = "ID of the group admin", example = "admin123")
     private String admin;
+
     @Schema(description = "Name of the group", example = "Study Group")
     private String nameGroup;
+
     @Schema(description = "List of member IDs in the group", example = "[\"user1\", \"user2\"]")
     private List<String> members;
+
     @Schema(description = "Unique code to join the group", example = "ABC123")
     private String code;
 
-    // Getters y setters
+    // Constructors
+    public GroupDTO() {
+    }
 
+    public GroupDTO(String id, String admin, String nameGroup, List<String> members, String code) {
+        this.id = id;
+        this.admin = admin;
+        this.nameGroup = nameGroup;
+        this.members = members;
+        this.code = code;
+    }
+
+    // Getters and Setters
     public String getId() {
         return id;
     }
@@ -39,6 +49,14 @@ public class Group {
 
     public void setAdmin(String admin) {
         this.admin = admin;
+    }
+
+    public String getNameGroup() {
+        return nameGroup;
+    }
+
+    public void setNameGroup(String nameGroup) {
+        this.nameGroup = nameGroup;
     }
 
     public List<String> getMembers() {
@@ -56,25 +74,4 @@ public class Group {
     public void setCode(String code) {
         this.code = code;
     }
-
-    public String getNameGroup() {
-        return nameGroup;
-    }
-
-    public void setNameGroup(String nameGroup) {
-        this.nameGroup = nameGroup;
-    }
-
-    public Group(String id, String admin,String nameGroup, List<String> members, String code) {
-        this.id = id;
-        this.admin = admin;
-        this.nameGroup = nameGroup;
-        this.members = members;
-        this.code = code;
-    }
-
-    public Group() {
-    }
-
-
 }

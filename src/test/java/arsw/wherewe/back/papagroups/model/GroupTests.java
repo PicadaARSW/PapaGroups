@@ -8,10 +8,11 @@ class GroupTests {
 
     @Test
     void createGroupWithValidData() {
-        Group group = new Group("1", "adminId", List.of("adminId"), "code123");
+        Group group = new Group("1", "adminId", "Amigos", List.of("adminId"), "code123");
 
         assertEquals("1", group.getId());
         assertEquals("adminId", group.getAdmin());
+        assertEquals("Amigos", group.getNameGroup());
         assertEquals(1, group.getMembers().size());
         assertEquals("adminId", group.getMembers().get(0));
         assertEquals("code123", group.getCode());
@@ -34,7 +35,7 @@ class GroupTests {
 
     @Test
     void addMemberToGroup() {
-        Group group = new Group("1", "adminId", List.of("adminId"), "code123");
+        Group group = new Group("1", "adminId", "Amigos",List.of("adminId"), "code123");
         group.setMembers(List.of("adminId", "user1"));
 
         assertEquals(2, group.getMembers().size());
@@ -43,7 +44,7 @@ class GroupTests {
 
     @Test
     void removeMemberFromGroup() {
-        Group group = new Group("1", "adminId", List.of("adminId", "user1"), "code123");
+        Group group = new Group("1", "adminId", "Amigos",List.of("adminId", "user1"), "code123");
         group.setMembers(List.of("adminId"));
 
         assertEquals(1, group.getMembers().size());

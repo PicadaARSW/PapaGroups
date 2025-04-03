@@ -1,6 +1,6 @@
 package arsw.wherewe.back.papagroups.controller;
 
-import arsw.wherewe.back.papagroups.model.Group;
+import arsw.wherewe.back.papagroups.dto.GroupDTO;
 import arsw.wherewe.back.papagroups.service.GroupService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,23 +36,23 @@ class GroupControllerTests {
 
     @Test
     void createGroupSuccessfully() throws Exception {
-        Group group = new Group();
-        group.setAdmin("adminId");
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setAdmin("adminId");
 
-        when(groupService.createGroup(any(Group.class))).thenReturn(group);
+        when(groupService.createGroup(any(GroupDTO.class))).thenReturn(groupDTO);
 
         mockMvc.perform(post("/api/v1/groups")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"admin\":\"adminId\"}"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"admin\":\"adminId\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.admin").value("adminId"));
 
-        verify(groupService, times(1)).createGroup(any(Group.class));
+        verify(groupService, times(1)).createGroup(any(GroupDTO.class));
     }
 
     @Test
     void getGroupsSuccessfully() throws Exception {
-        List<Group> groups = List.of(new Group(), new Group());
+        List<GroupDTO> groups = List.of(new GroupDTO(), new GroupDTO());
 
         when(groupService.getGroups()).thenReturn(groups);
 
@@ -65,10 +65,10 @@ class GroupControllerTests {
 
     @Test
     void getGroupByIdSuccessfully() throws Exception {
-        Group group = new Group();
-        group.setId("groupId");
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setId("groupId");
 
-        when(groupService.getGroupById("groupId")).thenReturn(group);
+        when(groupService.getGroupById("groupId")).thenReturn(groupDTO);
 
         mockMvc.perform(get("/api/v1/groups/groupId"))
                 .andExpect(status().isOk())
@@ -79,9 +79,9 @@ class GroupControllerTests {
 
     @Test
     void getGroupsByUserIdSuccessfully() throws Exception {
-        Group group1 = new Group();
+        GroupDTO group1 = new GroupDTO();
         group1.setMembers(List.of("user1", "user2"));
-        Group group2 = new Group();
+        GroupDTO group2 = new GroupDTO();
         group2.setMembers(List.of("user1"));
 
         when(groupService.getGroupsByUserId("user1")).thenReturn(List.of(group1, group2));
@@ -105,6 +105,27 @@ class GroupControllerTests {
         verify(groupService, times(1)).getGroupsByUserId("user1");
     }
 
+    @Test
+    void joinGroupSuccessfully() throws Exception {
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setId("groupId");
 
+        when(groupService.joinGroup("groupCode", "userId")).thenReturn(groupDTO);
 
+        mockMvc.perform(post("/api/v1/groups/join/groupCode/userId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("groupId"));
+
+        verify(groupService, times(1)).joinGroup("groupCode", "userId");
+    }
+
+    @Test
+    void joinGroupUserAlreadyInGroupOrGroupNotFound() throws Exception {
+        when(groupService.joinGroup("groupCode", "userId")).thenReturn(null);
+
+        mockMvc.perform(post("/api/v1/groups/join/groupCode/userId"))
+                .andExpect(status().isBadRequest());
+
+        verify(groupService, times(1)).joinGroup("groupCode", "userId");
+    }
 }
