@@ -128,4 +128,24 @@ class GroupControllerTests {
 
         verify(groupService, times(1)).joinGroup("groupCode", "userId");
     }
+
+    @Test
+    void leaveAllGroupsSuccessfully() throws Exception {
+        when(groupService.leaveAllGroups("userId")).thenReturn(true);
+
+        mockMvc.perform(delete("/api/v1/groups/leave-all/userId"))
+                .andExpect(status().isOk());
+
+        verify(groupService, times(1)).leaveAllGroups("userId");
+    }
+
+    @Test
+    void leaveAllGroupsNoGroupsFound() throws Exception {
+        when(groupService.leaveAllGroups("userId")).thenReturn(false);
+
+        mockMvc.perform(delete("/api/v1/groups/leave-all/userId"))
+                .andExpect(status().isNoContent());
+
+        verify(groupService, times(1)).leaveAllGroups("userId");
+    }
 }

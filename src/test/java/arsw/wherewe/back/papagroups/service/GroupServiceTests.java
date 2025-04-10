@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -190,5 +191,106 @@ class GroupServiceTests {
         assertNotNull(result);
         assertTrue(result.getMembers().contains("user1"));
         verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    void leaveAllGroupsSuccessfully() {
+        Group group1 = new Group();
+        group1.setAdmin("user1");
+        group1.setMembers(new ArrayList<>(List.of("user1", "user2")));
+
+        Group group2 = new Group();
+        group2.setAdmin("user3");
+        group2.setMembers(new ArrayList<>(List.of("user1", "user3")));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group1, group2));
+        when(groupRepository.save(any(Group.class))).thenReturn(group1, group2);
+
+        boolean result = groupService.leaveAllGroups("user1");
+
+        assertTrue(result);
+        assertFalse(group1.getMembers().contains("user1"));
+        assertFalse(group2.getMembers().contains("user1"));
+        verify(groupRepository, times(2)).save(any(Group.class));
+    }
+
+    @Test
+    void leaveAllGroupsNoGroupsFound() {
+        when(groupRepository.findAll()).thenReturn(List.of());
+
+        boolean result = groupService.leaveAllGroups("user1");
+
+        assertFalse(result);
+        verify(groupRepository, never()).save(any(Group.class));
+    }
+
+    @Test
+    void leaveAllGroupsAdminReassigned() {
+        Group group = new Group();
+        group.setAdmin("user1");
+        group.setMembers(new ArrayList<>(List.of("user1", "user2", "user3")));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group));
+        when(groupRepository.save(any(Group.class))).thenReturn(group);
+
+        boolean result = groupService.leaveAllGroups("user1");
+
+        assertTrue(result);
+        assertFalse(group.getMembers().contains("user1"));
+        assertNotEquals("user1", group.getAdmin());
+        assertTrue(group.getMembers().contains(group.getAdmin()));
+        verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    void leaveAllGroupsAdminReassignedWithSingleOtherMember() {
+        Group group = new Group();
+        group.setAdmin("user1");
+        group.setMembers(new ArrayList<>(List.of("user1", "user2")));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group));
+        when(groupRepository.save(any(Group.class))).thenReturn(group);
+
+        boolean result = groupService.leaveAllGroups("user1");
+
+        assertTrue(result);
+        assertFalse(group.getMembers().contains("user1"));
+        assertEquals("user2", group.getAdmin());
+        verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    void updateGroupCodesSuccessfully() {
+        Group group1 = new Group();
+        group1.setCode("oldCode1");
+        group1.setLastCodeUpdate(LocalDateTime.now().minusDays(4));
+        group1.setNextCodeUpdate(LocalDateTime.now().minusHours(1));
+
+        Group group2 = new Group();
+        group2.setCode("oldCode2");
+        group2.setLastCodeUpdate(LocalDateTime.now().minusDays(3));
+        group2.setNextCodeUpdate(LocalDateTime.now().plusHours(2));
+
+        when(groupRepository.findAll()).thenReturn(List.of(group1, group2));
+        when(groupRepository.save(any(Group.class))).thenReturn(group1, group2);
+
+        groupService.updateGroupCodes();
+
+        assertNotEquals("oldCode1", group1.getCode());
+        assertTrue(group1.getLastCodeUpdate().isBefore(group1.getNextCodeUpdate()));
+        assertTrue(group1.getNextCodeUpdate().isAfter(LocalDateTime.now()));
+
+        assertEquals("oldCode2", group2.getCode());
+        verify(groupRepository, times(1)).save(group1);
+        verify(groupRepository, never()).save(group2);
+    }
+
+    @Test
+    void updateGroupCodesNoGroupsFound() {
+        when(groupRepository.findAll()).thenReturn(List.of());
+
+        groupService.updateGroupCodes();
+
+        verify(groupRepository, never()).save(any(Group.class));
     }
 }
