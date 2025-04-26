@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
 import java.util.UUID;
 
 /**
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Service
 public class GroupService {
 
-    private Random random = new Random();
+    private SecureRandom random = new SecureRandom();
 
     private GroupRepository groupRepository;
 
