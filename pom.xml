@@ -157,7 +157,8 @@
 							</reports>
 							<excludes>
 								<!-- Excluir la clase CorsConfig del reporte de JaCoCo -->
-								<exclude>**/CorsConfig.class</exclude>
+								<exclude>**/SecurityConfig.class</exclude>
+								<exclude>**/SwaggerConfig.class</exclude>
 							</excludes>
 						</configuration>
 					</execution>
