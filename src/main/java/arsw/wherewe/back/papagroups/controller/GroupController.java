@@ -114,4 +114,19 @@ public class GroupController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @DeleteMapping("/leave-all/{userId}")
+    @Operation(summary = "Remove user from all groups", description = "Removes a user from all groups they belong to, reassigning admin if necessary")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User successfully removed from all groups"),
+            @ApiResponse(responseCode = "204", description = "User not found in any groups")
+    })
+    public ResponseEntity<Void> leaveAllGroups(@PathVariable("userId") String userId) {
+        boolean removed = groupService.leaveAllGroups(userId);
+        if (removed) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.noContent().build();
+        }
+    }
 }

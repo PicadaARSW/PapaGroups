@@ -3,6 +3,8 @@ package arsw.wherewe.back.papagroups.model;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -22,6 +24,11 @@ public class Group {
     private List<String> members;
     @Schema(description = "Unique code to join the group", example = "ABC123")
     private String code;
+    @Schema(description = "Date and time of the last code update", example = "2023-10-01T10:00:00")
+    private LocalDateTime lastCodeUpdate;
+
+    @Schema(description = "Date and time of the next code update", example = "2023-10-04T10:00:00")
+    private LocalDateTime nextCodeUpdate;
 
     // Getters y setters
 
@@ -65,12 +72,30 @@ public class Group {
         this.nameGroup = nameGroup;
     }
 
-    public Group(String id, String admin,String nameGroup, List<String> members, String code) {
+    public LocalDateTime getLastCodeUpdate() {
+        return lastCodeUpdate;
+    }
+
+    public void setLastCodeUpdate(LocalDateTime lastCodeUpdate) {
+        this.lastCodeUpdate = lastCodeUpdate;
+    }
+
+    public LocalDateTime getNextCodeUpdate() {
+        return nextCodeUpdate;
+    }
+
+    public void setNextCodeUpdate(LocalDateTime nextCodeUpdate) {
+        this.nextCodeUpdate = nextCodeUpdate;
+    }
+
+    public Group(String id, String admin,String nameGroup, List<String> members, String code, LocalDateTime lastCodeUpdate, LocalDateTime nextCodeUpdate) {
         this.id = id;
         this.admin = admin;
         this.nameGroup = nameGroup;
         this.members = members;
         this.code = code;
+        this.lastCodeUpdate = lastCodeUpdate;
+        this.nextCodeUpdate = nextCodeUpdate;
     }
 
     public Group() {

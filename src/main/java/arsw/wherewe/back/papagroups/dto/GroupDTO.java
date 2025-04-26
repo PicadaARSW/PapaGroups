@@ -2,6 +2,7 @@ package arsw.wherewe.back.papagroups.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(description = "DTO representing a group in the system")
@@ -22,17 +23,26 @@ public class GroupDTO {
     @Schema(description = "Unique code to join the group", example = "ABC123")
     private String code;
 
+    @Schema(description = "Date and time of the last code update", example = "2023-10-01T10:00:00")
+    private LocalDateTime lastCodeUpdate;
+
+    @Schema(description = "Date and time of the next code update", example = "2023-10-04T10:00:00")
+    private LocalDateTime nextCodeUpdate;
+
     // Constructors
     public GroupDTO() {
     }
 
-    public GroupDTO(String id, String admin, String nameGroup, List<String> members, String code) {
+    public GroupDTO(String id, String admin, String nameGroup, List<String> members, String code, LocalDateTime lastCodeUpdate, LocalDateTime nextCodeUpdate) {
         this.id = id;
         this.admin = admin;
         this.nameGroup = nameGroup;
         this.members = members;
         this.code = code;
+        this.lastCodeUpdate = lastCodeUpdate;
+        this.nextCodeUpdate = nextCodeUpdate;
     }
+
 
     // Getters and Setters
     public String getId() {
@@ -73,5 +83,21 @@ public class GroupDTO {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public LocalDateTime getLastCodeUpdate() {
+        return lastCodeUpdate;
+    }
+
+    public void setLastCodeUpdate(LocalDateTime lastCodeUpdate) {
+        this.lastCodeUpdate = lastCodeUpdate;
+    }
+
+    public LocalDateTime getNextCodeUpdate() {
+        return nextCodeUpdate;
+    }
+
+    public void setNextCodeUpdate(LocalDateTime nextCodeUpdate) {
+        this.nextCodeUpdate = nextCodeUpdate;
     }
 }
