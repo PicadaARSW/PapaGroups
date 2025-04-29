@@ -148,4 +148,52 @@ class GroupControllerTests {
 
         verify(groupService, times(1)).leaveAllGroups("userId");
     }
+
+    @Test
+    void leaveGroupSuccessfully() throws Exception {
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setId("groupId");
+
+        when(groupService.leaveGroup("groupId", "userId")).thenReturn(groupDTO);
+
+        mockMvc.perform(delete("/api/v1/groups/leave/groupId/userId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("groupId"));
+
+        verify(groupService, times(1)).leaveGroup("groupId", "userId");
+    }
+
+    @Test
+    void leaveGroupNotFound() throws Exception {
+        when(groupService.leaveGroup("groupId", "userId")).thenReturn(null);
+
+        mockMvc.perform(delete("/api/v1/groups/leave/groupId/userId"))
+                .andExpect(status().isNotFound());
+
+        verify(groupService, times(1)).leaveGroup("groupId", "userId");
+    }
+
+    @Test
+    void expelMemberSuccessfully() throws Exception {
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setId("groupId");
+
+        when(groupService.expelMember("groupId", "userId", "adminId")).thenReturn(groupDTO);
+
+        mockMvc.perform(delete("/api/v1/groups/expel/groupId/userId/adminId"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("groupId"));
+
+        verify(groupService, times(1)).expelMember("groupId", "userId", "adminId");
+    }
+
+    @Test
+    void expelMemberNotFound() throws Exception {
+        when(groupService.expelMember("groupId", "userId", "adminId")).thenReturn(null);
+
+        mockMvc.perform(delete("/api/v1/groups/expel/groupId/userId/adminId"))
+                .andExpect(status().isNotFound());
+
+        verify(groupService, times(1)).expelMember("groupId", "userId", "adminId");
+    }
 }

@@ -129,4 +129,37 @@ public class GroupController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @DeleteMapping("/leave/{groupId}/{userId}")
+    @Operation(summary = "Leave a specific group", description = "Removes a user from a specific group, reassigning admin if necessary")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User successfully left the group",
+                    content = @Content(schema = @Schema(implementation = Group.class))),
+            @ApiResponse(responseCode = "404", description = "Group or user not found")
+    })
+    public ResponseEntity<GroupDTO> leaveGroup(@PathVariable("groupId") String groupId, @PathVariable("userId") String userId) {
+        GroupDTO group = groupService.leaveGroup(groupId, userId);
+        if (group != null) {
+            return ResponseEntity.ok(group);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/expel/{groupId}/{userId}/{adminId}")
+    @Operation(summary = "Expel a member from a group", description = "Allows the admin to remove a member from the group")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Member successfully expelled",
+                    content = @Content(schema = @Schema(implementation = Group.class))),
+            @ApiResponse(responseCode = "403", description = "Only admin can expel members"),
+            @ApiResponse(responseCode = "404", description = "Group, user, or admin not found")
+    })
+    public ResponseEntity<GroupDTO> expelMember(@PathVariable("groupId") String groupId, @PathVariable("userId") String userId, @PathVariable("adminId") String adminId) {
+        GroupDTO group = groupService.expelMember(groupId, userId, adminId);
+        if (group != null) {
+            return ResponseEntity.ok(group);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
