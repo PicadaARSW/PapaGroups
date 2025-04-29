@@ -128,11 +128,10 @@ public class GroupService {
 
         for (Group group: userGroups) {
             if (isAdmin(userId, group) && group.getMembers().size() > 1) {
-                List<String> otherMembers = group.getMembers().stream()
-                        .filter(member -> !member.equals(userId))
-                        .toList();
-                String newAdmin = otherMembers.get(random.nextInt(otherMembers.size()));
-                group.setAdmin(newAdmin);
+                reassignAdmin(group, userId);
+            } else if (isAdmin(userId, group) && group.getMembers().size() == 1) {
+                groupRepository.deleteById(group.getId());
+                continue;
             }
             group.getMembers().remove(userId);
             groupRepository.save(group);
@@ -143,11 +142,78 @@ public class GroupService {
     /**
      * Check if the user is admin of the group
      * @param userId String user id
-     * @param group Group group
+     * @param group Group
      * @return boolean true if the user is admin of the group, false otherwise
      */
     private boolean isAdmin(String userId, Group group) {
         return group.getAdmin().equals(userId);
+    }
+
+    /**
+     * Check if the user is a member of the group
+     * @param userId
+     * @param group
+     * @return boolean true if the user is a member of the group, false otherwise
+     */
+    private boolean isMember(String userId, Group group) {
+        return group.getMembers().contains(userId);
+    }
+
+    /**
+     * Reassign aleatory the admin of the group
+     * @param group Group
+     */
+    private void reassignAdmin(Group group, String userId) {
+        List<String> otherMembers = group.getMembers().stream()
+                .filter(member -> !member.equals(userId))
+                .toList();
+        String newAdmin = otherMembers.get(random.nextInt(otherMembers.size()));
+        group.setAdmin(newAdmin);
+    }
+
+    /**
+     * Leave a specific group for a user
+     * @param groupId String group id
+     * @param userId String user id
+     * @return GroupDTO if the user left the group, null if group or user not found
+     */
+    public GroupDTO leaveGroup(String groupId, String userId) {
+        Optional<Group> groupOptional = groupRepository.findById(groupId);
+        if (groupOptional.isPresent()) {
+            Group group = groupOptional.get();
+            if (group.getMembers().contains(userId)) {
+                if (isAdmin(userId, group) && group.getMembers().size() > 1) {
+                    reassignAdmin(group, userId);
+                } else if (isAdmin(userId, group) && group.getMembers().size() == 1) {
+                    groupRepository.deleteById(group.getId());
+                    return null;
+                }
+                group.getMembers().remove(userId);
+                Group updatedGroup = groupRepository.save(group);
+                return toGroupDTO(updatedGroup);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Expel a member from a group (Only admin can do this)
+     * @param groupId String group id
+     * @param userId String user id to expel
+     * @param adminId String admin id
+     * @return GroupDTO if the user was expelled, null if group, user or admin not valid
+     */
+    public GroupDTO expelMember(String groupId, String userId, String adminId) {
+        Optional<Group> groupOptional = groupRepository.findById(groupId);
+        if (groupOptional.isPresent()) {
+            Group group = groupOptional.get();
+            if(isAdmin(adminId, group) && isMember(userId, group) && !isAdmin(userId, group)) {
+                group.getMembers().remove(userId);
+                Group updatedGroup = groupRepository.save(group);
+                return toGroupDTO(updatedGroup);
+            }
+        }
+        return null;
     }
 
     /**
