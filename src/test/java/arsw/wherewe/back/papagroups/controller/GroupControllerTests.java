@@ -150,22 +150,18 @@ class GroupControllerTests {
     }
 
     @Test
-    void leaveGroupSuccessfully() throws Exception {
-        GroupDTO groupDTO = new GroupDTO();
-        groupDTO.setId("groupId");
-
-        when(groupService.leaveGroup("groupId", "userId")).thenReturn(groupDTO);
+    void leaveGroupSuccessfullyReturnsOk() throws Exception {
+        when(groupService.leaveGroup("groupId", "userId")).thenReturn(true);
 
         mockMvc.perform(delete("/api/v1/groups/leave/groupId/userId"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value("groupId"));
+                .andExpect(status().isOk());
 
         verify(groupService, times(1)).leaveGroup("groupId", "userId");
     }
 
     @Test
-    void leaveGroupNotFound() throws Exception {
-        when(groupService.leaveGroup("groupId", "userId")).thenReturn(null);
+    void leaveGroupNotFoundReturnsNotFound() throws Exception {
+        when(groupService.leaveGroup("groupId", "userId")).thenReturn(false);
 
         mockMvc.perform(delete("/api/v1/groups/leave/groupId/userId"))
                 .andExpect(status().isNotFound());

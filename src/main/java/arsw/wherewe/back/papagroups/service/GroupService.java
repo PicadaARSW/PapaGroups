@@ -177,23 +177,24 @@ public class GroupService {
      * @param userId String user id
      * @return GroupDTO if the user left the group, null if group or user not found
      */
-    public GroupDTO leaveGroup(String groupId, String userId) {
+    public boolean leaveGroup(String groupId, String userId) {
         Optional<Group> groupOptional = groupRepository.findById(groupId);
         if (groupOptional.isPresent()) {
             Group group = groupOptional.get();
             if (group.getMembers().contains(userId)) {
                 if (isAdmin(userId, group) && group.getMembers().size() > 1) {
                     reassignAdmin(group, userId);
-                } else if (isAdmin(userId, group) && group.getMembers().size() == 1) {
-                    groupRepository.deleteById(group.getId());
-                    return null;
                 }
                 group.getMembers().remove(userId);
-                Group updatedGroup = groupRepository.save(group);
-                return toGroupDTO(updatedGroup);
+                if (group.getMembers().isEmpty()) {
+                    groupRepository.deleteById(group.getId());
+                    return true;
+                }
+                groupRepository.save(group);
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     /**

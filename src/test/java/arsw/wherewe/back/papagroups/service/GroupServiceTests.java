@@ -294,67 +294,7 @@ class GroupServiceTests {
         verify(groupRepository, never()).save(any(Group.class));
     }
 
-    @Test
-    void leaveGroupSuccessfully() {
-        Group group = new Group();
-        group.setId("groupId");
-        group.setAdmin("adminId");
-        group.setMembers(new ArrayList<>(List.of("adminId", "userId")));
 
-        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
-        when(groupRepository.save(any(Group.class))).thenReturn(group);
-
-        GroupDTO result = groupService.leaveGroup("groupId", "userId");
-
-        assertNotNull(result);
-        assertFalse(group.getMembers().contains("userId"));
-        verify(groupRepository, times(1)).save(any(Group.class));
-    }
-
-    @Test
-    void leaveGroupAdminReassigned() {
-        Group group = new Group();
-        group.setId("groupId");
-        group.setAdmin("adminId");
-        group.setMembers(new ArrayList<>(List.of("adminId", "userId", "user2")));
-
-        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
-        when(groupRepository.save(any(Group.class))).thenReturn(group);
-
-        GroupDTO result = groupService.leaveGroup("groupId", "adminId");
-
-        assertNotNull(result);
-        assertFalse(group.getMembers().contains("adminId"));
-        assertNotEquals("adminId", group.getAdmin());
-        assertTrue(group.getMembers().contains(group.getAdmin()));
-        verify(groupRepository, times(1)).save(any(Group.class));
-    }
-
-    @Test
-    void leaveGroupDeletedWhenAdminAndOnlyMember() {
-        Group group = new Group();
-        group.setId("groupId");
-        group.setAdmin("adminId");
-        group.setMembers(new ArrayList<>(List.of("adminId")));
-
-        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
-
-        GroupDTO result = groupService.leaveGroup("groupId", "adminId");
-
-        assertNull(result);
-        verify(groupRepository, times(1)).deleteById("groupId");
-        verify(groupRepository, never()).save(any(Group.class));
-    }
-
-    @Test
-    void leaveGroupNotFound() {
-        when(groupRepository.findById("groupId")).thenReturn(Optional.empty());
-
-        GroupDTO result = groupService.leaveGroup("groupId", "userId");
-
-        assertNull(result);
-        verify(groupRepository, never()).save(any(Group.class));
-    }
 
     @Test
     void expelMemberSuccessfully() {
@@ -411,5 +351,84 @@ class GroupServiceTests {
 
         assertNull(result);
         verify(groupRepository, never()).save(any(Group.class));
+    }
+
+    @Test
+    void leaveGroupSuccessfullyRemovesUser() {
+        Group group = new Group();
+        group.setId("groupId");
+        group.setAdmin("adminId");
+        group.setMembers(new ArrayList<>(List.of("adminId", "userId")));
+
+        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
+        when(groupRepository.save(any(Group.class))).thenReturn(group);
+
+        boolean result = groupService.leaveGroup("groupId", "userId");
+
+        assertTrue(result);
+        assertFalse(group.getMembers().contains("userId"));
+        verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    void leaveGroupSuccessfullyDeletesGroupWhenLastMember() {
+        Group group = new Group();
+        group.setId("groupId");
+        group.setAdmin("userId");
+        group.setMembers(new ArrayList<>(List.of("userId")));
+
+        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
+
+        boolean result = groupService.leaveGroup("groupId", "userId");
+
+        assertTrue(result);
+        verify(groupRepository, times(1)).deleteById("groupId");
+        verify(groupRepository, never()).save(any(Group.class));
+    }
+
+    @Test
+    void leaveGroupSuccessfullyReassignsAdmin() {
+        Group group = new Group();
+        group.setId("groupId");
+        group.setAdmin("adminId");
+        group.setMembers(new ArrayList<>(List.of("adminId", "userId", "user2")));
+
+        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
+        when(groupRepository.save(any(Group.class))).thenReturn(group);
+
+        boolean result = groupService.leaveGroup("groupId", "adminId");
+
+        assertTrue(result);
+        assertFalse(group.getMembers().contains("adminId"));
+        assertNotEquals("adminId", group.getAdmin());
+        assertTrue(group.getMembers().contains(group.getAdmin()));
+        verify(groupRepository, times(1)).save(any(Group.class));
+    }
+
+    @Test
+    void leaveGroupFailsWhenGroupNotFound() {
+        when(groupRepository.findById("groupId")).thenReturn(Optional.empty());
+
+        boolean result = groupService.leaveGroup("groupId", "userId");
+
+        assertFalse(result);
+        verify(groupRepository, never()).save(any(Group.class));
+        verify(groupRepository, never()).deleteById(anyString());
+    }
+
+    @Test
+    void leaveGroupFailsWhenUserNotInGroup() {
+        Group group = new Group();
+        group.setId("groupId");
+        group.setAdmin("adminId");
+        group.setMembers(new ArrayList<>(List.of("adminId", "user2")));
+
+        when(groupRepository.findById("groupId")).thenReturn(Optional.of(group));
+
+        boolean result = groupService.leaveGroup("groupId", "userId");
+
+        assertFalse(result);
+        verify(groupRepository, never()).save(any(Group.class));
+        verify(groupRepository, never()).deleteById(anyString());
     }
 }

@@ -138,9 +138,9 @@ public class GroupController {
             @ApiResponse(responseCode = "404", description = "Group or user not found")
     })
     public ResponseEntity<GroupDTO> leaveGroup(@PathVariable("groupId") String groupId, @PathVariable("userId") String userId) {
-        GroupDTO group = groupService.leaveGroup(groupId, userId);
-        if (group != null) {
-            return ResponseEntity.ok(group);
+        boolean isDeleted = groupService.leaveGroup(groupId, userId);
+        if (isDeleted) {
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }
